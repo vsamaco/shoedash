@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import plotly.express as px
 import requests
 import streamlit as st
 from dotenv import load_dotenv
@@ -50,13 +51,14 @@ def build_activities_dataframe(activities_data, df_profile):
         df['start_date_local'])
 
     # convert meters to miles
+    df['distance_mi'] = df['distance'] * 0.000621371
 
     # merge shoe dataframe
     df = pd.merge(df, df_shoes,
                   on="gear_id", how="inner")
 
     # filter selected shoes
-    return df[['id', 'start_date_local', 'name', 'distance', 'shoe_name']]
+    return df[['id', 'start_date_local', 'name', 'distance_mi', 'shoe_name']]
 
 
 def build_shoes_dataframe(profile):
@@ -70,12 +72,46 @@ def build_shoes_dataframe(profile):
     return df[['gear_id', 'shoe_name', 'shoe_distance', 'converted_shoe_distance']]
 
 
+def build_shoe_distance_dataframe(df_activities):
+    df = df_activities.copy()
+    df = df.groupby(
+        ['shoe_name', df['start_date_local'].dt.date])['distance_mi'].sum().reset_index()
+
+    df_pivot = df.pivot(
+        index="start_date_local",
+        columns="shoe_name",
+        values="distance_mi").fillna(0)
+    df_pivot = df_pivot.cumsum().reset_index()
+    melted = df_pivot.melt(
+        id_vars=['start_date_local'], var_name='Shoe', value_name='Distance (mi)')
+
+    return melted
+
+
+def build_shoe_distance_chart(df_shoe_distance):
+    fig = px.line(
+        df_shoe_distance,
+        x="start_date_local",
+        y="Distance (mi)",
+        color="Shoe",
+        labels={'start_date_local': 'Date'}
+    )
+    fig.update_layout(
+        xaxis=dict(
+            tickformat="%m/%d/%Y"  # e.g., 5/1/2024
+        )
+    )
+    return fig
+
+
 profile_data = get_profile()
 df_shoes = build_shoes_dataframe(profile_data)
 
 activities_data = get_activities()
 df_activities = build_activities_dataframe(activities_data, df_shoes)
 
+df_shoe_distance = build_shoe_distance_dataframe(df_activities)
+shoe_distance_fig = build_shoe_distance_chart(df_shoe_distance)
 # ====  BUILD UI ==== #
 
 
@@ -88,6 +124,9 @@ def main():
 
     st.subheader(f'Activities ({len(df_activities)})')
     st.dataframe(df_activities.head(5))
+
+    st.subheader("Stats")
+    st.plotly_chart(shoe_distance_fig)
 
 
 main()
