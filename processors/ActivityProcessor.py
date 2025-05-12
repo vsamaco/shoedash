@@ -1,0 +1,54 @@
+import pandas as pd
+import streamlit as st
+METERS_TO_MILES = 0.000621371
+
+
+class ActivityProcessor():
+    def __init__(self, activities_json):
+        self.activities = activities_json
+        self.original_df = self._to_dataframe()
+        self.df = self.original_df.copy()
+
+    def _to_dataframe(self):
+        df = pd.DataFrame(self.activities)
+        df['start_date_local'] = pd.to_datetime(df['start_date_local'])
+
+        df = df[df['sport_type'] == 'Run']
+        df['distance_mi'] = df['distance'] * METERS_TO_MILES
+
+        return df[['id', 'start_date_local', 'name', 'distance_mi', 'gear_id']]
+
+    def reset(self):
+        self.df = self.original_df
+        return self.df
+
+    def get_dataframe(self):
+        return self.df
+
+    def merge_with_shoes(self, shoes_df):
+        self.df = pd.merge(self.df, shoes_df, on='gear_id',
+                           how='inner', suffixes=('', '_shoe'))
+        return self
+
+    def filter_by_year_range(self, start_year, end_year):
+        '''Filters activities between start and end year inclusive'''
+        self.df = self.df[self.df['start_date_local'].dt.year.between(
+            start_year, end_year)]
+        return self
+
+    def filter_by_shoes(self, shoe_ids):
+        '''Filters activities with matching shoes from shoe_list'''
+        self.df = self.df[self.df['gear_id']].isin(shoe_ids)
+        return self.df
+
+    def get_cumulative_shoe_distance(self):
+        '''Returns dataframe with cumulative distance per shoe over time'''
+        df = self.df.copy()
+        df = df.sort_values(['name_shoe', 'start_date_local'])
+
+        grouped = df.groupby(['name_shoe', 'start_date_local']).agg(
+            {'distance_mi': 'sum'}).reset_index()
+
+        grouped['cumulative_distance'] = grouped.groupby(
+            'name_shoe')['distance_mi'].cumsum()
+        return grouped
