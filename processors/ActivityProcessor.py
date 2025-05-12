@@ -32,6 +32,9 @@ class ActivityProcessor():
 
     def filter_by_year_range(self, start_year, end_year):
         '''Filters activities between start and end year inclusive'''
+        if end_year < start_year:
+            return self
+
         self.df = self.df[self.df['start_date_local'].dt.year.between(
             start_year, end_year)]
         return self
@@ -40,6 +43,9 @@ class ActivityProcessor():
         '''Filters activities with matching shoes from shoe_list'''
         self.df = self.df[self.df['gear_id']].isin(shoe_ids)
         return self.df
+
+    def get_activities_years(self):
+        return sorted(self.df['start_date_local'].dt.year.dropna().unique())
 
     def get_cumulative_shoe_distance(self):
         '''Returns dataframe with cumulative distance per shoe over time'''
