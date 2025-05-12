@@ -21,8 +21,8 @@ REDIRECT_URI = os.environ.get('STRAVA_REDIRECT_URI')
 DEMO_PROFILE_URL = os.environ.get('DEMO_PROFILE_URL', '')
 DEMO_ACTIVITY_URL = os.environ.get('DEMO_ACTIVITY_URL', '')
 
-# ====== GET DATA ======= #
 
+# ====== GET DATA ======= #
 
 @st.cache_data
 def get_profile():
@@ -45,15 +45,32 @@ def get_activities():
 
 
 profile_data = get_profile()
-shoe_processor = ShoeProcessor(profile_data)
-df_shoes = shoe_processor.get_dataframe()
-
 activities_data = get_activities()
+
+shoe_processor = ShoeProcessor(profile_data)
 activity_processor = ActivityProcessor(activities_data)
-df_activities = activity_processor.merge_with_shoes(df_shoes).get_dataframe()
 
+activity_year_values = activity_processor.get_activities_years()
+available_shoes = shoe_processor.get_shoe_name_list()
+
+with st.sidebar:
+    activity_start_year = st.selectbox(
+        'Start Year', activity_year_values, index=0)
+    activity_end_year = st.selectbox(
+        'End Year',
+        activity_year_values,
+        index=len(activity_year_values) - 1,
+    )
+
+    selected_shoes = st.multiselect(
+        "Select Shoes",
+        options=available_shoes)
+
+
+df_shoes = shoe_processor.filter_shoes_by_name(selected_shoes).get_dataframe()
+df_activities = activity_processor.merge_with_shoes(df_shoes).filter_by_year_range(
+    activity_start_year, activity_end_year).get_dataframe()
 df_cumulative_shoe_distance = activity_processor.get_cumulative_shoe_distance()
-
 
 # ====  BUILD UI ==== #
 
