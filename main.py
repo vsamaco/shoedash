@@ -1,9 +1,13 @@
 import os
-import pandas as pd
-import plotly.express as px
 import requests
 import streamlit as st
 from dotenv import load_dotenv
+
+from processors.ActivityProcessor import ActivityProcessor
+from processors.ShoeProcessor import ShoeProcessor
+from ui.ActivityTableComponent import ActivityTableComponent
+from ui.ShoeDistanceChartComponent import ShoeDistanceChartComponent
+from ui.ShoeTableComponent import ShoeTableComponent
 
 load_dotenv()
 
@@ -40,78 +44,17 @@ def get_activities():
     return response.json()
 
 
-def build_activities_dataframe(activities_data, df_profile):
-    df = pd.DataFrame(activities_data)
-
-    # filter sport_type = Run
-    df = df[df.sport_type == "Run"]
-
-    # format start_date
-    df['start_date_local'] = pd.to_datetime(
-        df['start_date_local'])
-
-    # convert meters to miles
-    df['distance_mi'] = df['distance'] * 0.000621371
-
-    # merge shoe dataframe
-    df = pd.merge(df, df_shoes,
-                  on="gear_id", how="inner")
-
-    # filter selected shoes
-    return df[['id', 'start_date_local', 'name', 'distance_mi', 'shoe_name']]
-
-
-def build_shoes_dataframe(profile):
-    shoes = profile['shoes']
-    df = pd.DataFrame(shoes)
-    df.rename(
-        columns={'id': 'gear_id', 'name': 'shoe_name', 'distance': 'shoe_distance',
-                 'converted_distance': 'converted_shoe_distance'},
-        inplace=True)
-
-    return df[['gear_id', 'shoe_name', 'shoe_distance', 'converted_shoe_distance']]
-
-
-def build_shoe_distance_dataframe(df_activities):
-    df = df_activities.copy()
-    df = df.groupby(
-        ['shoe_name', df['start_date_local'].dt.date])['distance_mi'].sum().reset_index()
-
-    df_pivot = df.pivot(
-        index="start_date_local",
-        columns="shoe_name",
-        values="distance_mi").fillna(0)
-    df_pivot = df_pivot.cumsum().reset_index()
-    melted = df_pivot.melt(
-        id_vars=['start_date_local'], var_name='Shoe', value_name='Distance (mi)')
-
-    return melted
-
-
-def build_shoe_distance_chart(df_shoe_distance):
-    fig = px.line(
-        df_shoe_distance,
-        x="start_date_local",
-        y="Distance (mi)",
-        color="Shoe",
-        labels={'start_date_local': 'Date'}
-    )
-    fig.update_layout(
-        xaxis=dict(
-            tickformat="%m/%d/%Y"  # e.g., 5/1/2024
-        )
-    )
-    return fig
-
-
 profile_data = get_profile()
-df_shoes = build_shoes_dataframe(profile_data)
+shoe_processor = ShoeProcessor(profile_data)
+df_shoes = shoe_processor.get_dataframe()
 
 activities_data = get_activities()
-df_activities = build_activities_dataframe(activities_data, df_shoes)
+activity_processor = ActivityProcessor(activities_data)
+df_activities = activity_processor.merge_with_shoes(df_shoes).get_dataframe()
 
-df_shoe_distance = build_shoe_distance_dataframe(df_activities)
-shoe_distance_fig = build_shoe_distance_chart(df_shoe_distance)
+df_cumulative_shoe_distance = activity_processor.get_cumulative_shoe_distance()
+
+
 # ====  BUILD UI ==== #
 
 
@@ -120,13 +63,13 @@ def main():
     st.subheader(f"Hello {profile_data['firstname']}")
 
     st.subheader(f'Shoes ({len(df_shoes)})')
-    st.dataframe(df_shoes.head(5))
+    ShoeTableComponent(df_shoes).render()
 
     st.subheader(f'Activities ({len(df_activities)})')
-    st.dataframe(df_activities.head(5))
+    ActivityTableComponent(df_activities).render()
 
     st.subheader("Stats")
-    st.plotly_chart(shoe_distance_fig)
+    ShoeDistanceChartComponent(df_cumulative_shoe_distance).render()
 
 
 main()
