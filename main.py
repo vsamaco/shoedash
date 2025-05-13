@@ -3,6 +3,7 @@ import requests
 import streamlit as st
 from dotenv import load_dotenv
 from lib.strava import Strava
+from lib.strava_auth_manager import StravaAuthManager
 from processors.ActivityProcessor import ActivityProcessor
 from processors.ShoeProcessor import ShoeProcessor
 from ui.ActivityTableComponent import ActivityTableComponent
@@ -31,25 +32,9 @@ if "strava" not in st.session_state:
 
 # ======  AUTH ======= #
 
-if st.query_params.get('mode') == "strava":
-    st.session_state.mode = st.query_params.mode
-
 strava = st.session_state.strava
-code = st.query_params.get("code", None)
-if st.session_state.mode == "strava" and not strava.access_token and not code:
-    st.markdown(
-        f'<a href="{strava.get_login_url()}" target="_self">Login Strava</a>', unsafe_allow_html=True)
-    st.stop()
-
-if code and not strava.access_token:
-    if strava.request_access_token(code):
-        st.query_params.clear()
-    else:
-        st.error('auth error')
-        st.markdown(
-            f'<a href="{strava.get_login_url()}" target="_self">Login Strava</a>', unsafe_allow_html=True)
-        st.stop()
-
+auth = StravaAuthManager(strava)
+auth.handle_auth(st.session_state.mode)
 
 with st.sidebar:
     def update_mode():
@@ -60,8 +45,8 @@ with st.sidebar:
                  index=source_values.index(st.session_state.mode), on_change=update_mode, key='selected_mode')
 
 
-st.write(f'mode: {st.session_state.mode}')
-st.write(f'strava token: {strava.access_token}')
+# st.write(f'mode: {st.session_state.mode}')
+# st.write(f'strava token: {strava.access_token}')
 
 # ====== GET DATA ======= #
 
