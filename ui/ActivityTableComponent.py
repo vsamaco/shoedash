@@ -10,6 +10,7 @@ class ActivityTableComponent():
             'gear_id': st.column_config.TextColumn('Gear ID'),
             'name_shoe': st.column_config.TextColumn('Shoe'),
             'total_distance_mi': None,
+            'retired': None,
         }
 
     def render(self):

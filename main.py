@@ -2,7 +2,8 @@ import os
 import requests
 import streamlit as st
 from dotenv import load_dotenv
-
+from lib.strava import Strava
+from lib.strava_auth_manager import StravaAuthManager
 from processors.ActivityProcessor import ActivityProcessor
 from processors.ShoeProcessor import ShoeProcessor
 from ui.ActivityTableComponent import ActivityTableComponent
@@ -22,36 +23,69 @@ DEMO_PROFILE_URL = os.environ.get('DEMO_PROFILE_URL', '')
 DEMO_ACTIVITY_URL = os.environ.get('DEMO_ACTIVITY_URL', '')
 
 
+if "mode" not in st.session_state:
+    st.session_state.mode = 'demo'
+
+if "strava" not in st.session_state:
+    st.session_state.strava = Strava(
+        CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, scope="profile:read_all,activity:read")
+
+# ======  AUTH ======= #
+
+strava = st.session_state.strava
+auth = StravaAuthManager(strava)
+auth.handle_auth(st.session_state.mode)
+
+with st.sidebar:
+    def update_mode():
+        st.session_state.mode = st.session_state.selected_mode
+
+    source_values = ['demo', 'strava']
+    st.selectbox('Source', ['demo', 'strava'],
+                 index=source_values.index(st.session_state.mode), on_change=update_mode, key='selected_mode')
+
 # ====== GET DATA ======= #
 
-@st.cache_data
-def get_profile():
-    response = requests.get(DEMO_PROFILE_URL, timeout=1000)
-    if response.status_code != 200:
-        st.error('Fetch profile error')
-        st.stop()
-
-    return response.json()
-
 
 @st.cache_data
-def get_activities():
-    response = requests.get(DEMO_ACTIVITY_URL, timeout=1000)
-    if response.status_code != 200:
-        st.error('Fetch activities error')
-        st.stop()
+def get_profile(mode, athlete_id=None):
+    print(f'get profile: {mode}')
+    if mode == "strava" and athlete_id:
+        return strava.get_athlete()
+    else:
+        response = requests.get(DEMO_PROFILE_URL, timeout=1000)
+        if response.status_code != 200:
+            st.error('Fetch profile error')
+            st.stop()
 
-    return response.json()
+        return response.json()
 
 
-profile_data = get_profile()
-activities_data = get_activities()
+@st.cache_data
+def get_activities(mode, athlete_id=None):
+    print(f'get activities: {mode}')
+    if mode == 'strava' and athlete_id:
+        return strava.get_activities(per_page=25, page=1)
+    else:
+        response = requests.get(DEMO_ACTIVITY_URL, timeout=1000)
+        if response.status_code != 200:
+            st.error('Fetch activities error')
+            st.stop()
+
+        return response.json()
+
+
+profile_data = get_profile(st.session_state.mode,
+                           st.session_state.strava.athlete.get('id'))
+activities_data = get_activities(
+    st.session_state.mode, st.session_state.strava.athlete.get('id'))
 
 shoe_processor = ShoeProcessor(profile_data)
 activity_processor = ActivityProcessor(activities_data)
 
 activity_year_values = activity_processor.get_activities_years()
 available_shoes = shoe_processor.get_shoe_name_list()
+
 
 with st.sidebar:
     activity_start_year = st.selectbox(
