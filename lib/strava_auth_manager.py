@@ -8,13 +8,12 @@ class StravaAuthManager():
 
     def handle_auth(self, mode):
         code = st.query_params.get('code')
-        # validate code, when code
+        # validate code after strava auth confirmed
         if code:
             self.validate_code(code)
-        # login when mode=strava, code=None, strava.access_token=None
+        # prompt strava login
         elif mode == 'strava' and not code and not self.strava.access_token:
             self.render_login()
-        # no op, when mode=demo
 
     def render_login(self):
         st.markdown(

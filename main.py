@@ -44,10 +44,6 @@ with st.sidebar:
     st.selectbox('Source', ['demo', 'strava'],
                  index=source_values.index(st.session_state.mode), on_change=update_mode, key='selected_mode')
 
-
-# st.write(f'mode: {st.session_state.mode}')
-# st.write(f'strava token: {strava.access_token}')
-
 # ====== GET DATA ======= #
 
 

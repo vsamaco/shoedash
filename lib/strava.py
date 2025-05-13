@@ -87,14 +87,10 @@ class Strava():
         return response.json()
 
     def get_activities(self, per_page=25, page=1):
-        print('get strava api: activities')
         return self.get('athlete/activities', params={"per_page": per_page, "page": page})
 
     def get_athlete(self):
-        print('get strava api: athlete')
-
         return self.get('athlete')
 
     def get_gear(self, gear_id):
-        print(f'get strava gear: {gear_id}')
         return self.get(f'gear/{gear_id}')
