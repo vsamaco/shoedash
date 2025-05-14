@@ -18,5 +18,5 @@ def get_athlete(_adapter: BaseDataAdapter, athlete_id):
 
 
 @st.cache_data
-def get_activities(_adapter, athlete_id):
+def get_activities(_adapter: BaseDataAdapter, athlete_id):
     return _adapter.get_activities(athlete_id)

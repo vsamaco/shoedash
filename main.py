@@ -1,16 +1,18 @@
 import os
-import requests
 import streamlit as st
 from dotenv import load_dotenv
+from adapters.base_data_adapter import get_activities, get_athlete
+from adapters.demo_data_adapter import DemoDataAdapter
+from adapters.strava_data_adapter import StravaDataAdapter
 from lib.strava import Strava
 from lib.strava_auth_manager import StravaAuthManager
-from processors.ActivityProcessor import ActivityProcessor
-from processors.ShoeProcessor import ShoeProcessor
+from repositories.activity_repository import ActivityRepository
+from repositories.athlete_repository import AthleteRepository
 from ui.ActivityTableComponent import ActivityTableComponent
 from ui.ShoeDistanceChartComponent import ShoeDistanceChartComponent
 from ui.ShoeTableComponent import ShoeTableComponent
 
-load_dotenv()
+load_dotenv(override=True)
 
 st.set_page_config(page_title="Shoe Dashboard", page_icon="👟")
 
@@ -19,9 +21,6 @@ st.set_page_config(page_title="Shoe Dashboard", page_icon="👟")
 CLIENT_ID = os.environ.get('STRAVA_CLIENT_ID')
 CLIENT_SECRET = os.environ.get('STRAVA_CLIENT_SECRET')
 REDIRECT_URI = os.environ.get('STRAVA_REDIRECT_URI')
-DEMO_PROFILE_URL = os.environ.get('DEMO_PROFILE_URL', '')
-DEMO_ACTIVITY_URL = os.environ.get('DEMO_ACTIVITY_URL', '')
-
 
 if "mode" not in st.session_state:
     st.session_state.mode = 'demo'
@@ -46,45 +45,17 @@ with st.sidebar:
 
 # ====== GET DATA ======= #
 
+athlete_id = st.session_state.strava.athlete.get('id')
+data_adapter = StravaDataAdapter(strava
+                                 ) if st.session_state.mode == 'strava' else DemoDataAdapter()
+athlete_repository = AthleteRepository(get_athlete(data_adapter,
+                                                   athlete_id))
 
-@st.cache_data
-def get_profile(mode, athlete_id=None):
-    print(f'get profile: {mode}')
-    if mode == "strava" and athlete_id:
-        return strava.get_athlete()
-    else:
-        response = requests.get(DEMO_PROFILE_URL, timeout=1000)
-        if response.status_code != 200:
-            st.error('Fetch profile error')
-            st.stop()
+activity_repository = ActivityRepository(get_activities(
+    data_adapter, athlete_id))
 
-        return response.json()
-
-
-@st.cache_data
-def get_activities(mode, athlete_id=None):
-    print(f'get activities: {mode}')
-    if mode == 'strava' and athlete_id:
-        return strava.get_activities(per_page=25, page=1)
-    else:
-        response = requests.get(DEMO_ACTIVITY_URL, timeout=1000)
-        if response.status_code != 200:
-            st.error('Fetch activities error')
-            st.stop()
-
-        return response.json()
-
-
-profile_data = get_profile(st.session_state.mode,
-                           st.session_state.strava.athlete.get('id'))
-activities_data = get_activities(
-    st.session_state.mode, st.session_state.strava.athlete.get('id'))
-
-shoe_processor = ShoeProcessor(profile_data)
-activity_processor = ActivityProcessor(activities_data)
-
-activity_year_values = activity_processor.get_activities_years()
-available_shoes = shoe_processor.get_shoe_name_list()
+activity_year_values = activity_repository.get_activity_years()
+available_shoes = athlete_repository.get_shoes_names()
 
 
 with st.sidebar:
@@ -101,17 +72,18 @@ with st.sidebar:
         options=available_shoes)
 
 
-df_shoes = shoe_processor.filter_shoes_by_name(selected_shoes).get_dataframe()
-df_activities = activity_processor.merge_with_shoes(df_shoes).filter_by_year_range(
-    activity_start_year, activity_end_year).get_dataframe()
-df_cumulative_shoe_distance = activity_processor.get_cumulative_shoe_distance()
+df_shoes = athlete_repository.get_shoes_df(selected_shoes)
+df_activities = activity_repository.get_activities_df(
+    df_shoes, activity_start_year, activity_end_year)
+df_cumulative_shoe_distance = activity_repository.get_cumulative_shoe_distance_df()
+athlete = athlete_repository.get_profile()
 
 # ====  BUILD UI ==== #
 
 
 def main():
     st.title("Shoe Dashboard")
-    st.subheader(f"Hello {profile_data['firstname']}")
+    st.subheader(f"Hello {athlete.get('firstname')}")
 
     st.subheader(f'Shoes ({len(df_shoes)})')
     ShoeTableComponent(df_shoes).render()
