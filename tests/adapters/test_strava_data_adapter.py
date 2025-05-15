@@ -1,0 +1,26 @@
+from unittest.mock import MagicMock
+from adapters.strava_data_adapter import StravaDataAdapter
+
+
+def test_strava_data_get_athlete():
+    mock_strava = MagicMock()
+    mock_strava.get_athlete.return_value = {
+        "id": 1, "firstname": "Foo", "lastname": "Bar", "shoes": []}
+
+    adapter = StravaDataAdapter(mock_strava)
+    athlete = adapter.get_athlete(1)
+
+    assert athlete['id'] == 1
+    mock_strava.get_athlete.assert_called_once()
+
+
+def test_strava_adapter_get_activities():
+    mock_strava = MagicMock()
+    mock_strava.get_activities.return_value = [
+        {"id": 100, "name": "Activity 100"}]
+
+    adapter = StravaDataAdapter(mock_strava)
+    activities = adapter.get_activities(1)
+
+    assert len(activities) == 1
+    mock_strava.get_activities.assert_called_once()
