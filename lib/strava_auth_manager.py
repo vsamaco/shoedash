@@ -17,7 +17,7 @@ class StravaAuthManager():
 
     def render_login(self):
         st.markdown(
-            f'<a href="{self.strava.get_login_url()}" target="_self">Login Strava</a>', unsafe_allow_html=True)
+            f'<a href="{self.strava.get_login_url()}" target="_blank">Login Strava</a>', unsafe_allow_html=True)
         st.stop()
 
     def validate_code(self, code):
