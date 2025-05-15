@@ -1,5 +1,6 @@
 import streamlit as st
 from lib.strava import Strava
+from ui.strava_auth_dialog import StravaAuthDialog
 
 
 class StravaAuthManager():
@@ -13,12 +14,7 @@ class StravaAuthManager():
             self.validate_code(code)
         # prompt strava login
         elif mode == 'strava' and not code and not self.strava.access_token:
-            self.render_login()
-
-    def render_login(self):
-        st.markdown(
-            f'<a href="{self.strava.get_login_url()}" target="_blank">Login Strava</a>', unsafe_allow_html=True)
-        st.stop()
+            self._display_auth_dialog()
 
     def validate_code(self, code):
         if self.strava.request_access_token(code):
@@ -26,4 +22,11 @@ class StravaAuthManager():
             st.query_params.clear()
         else:
             st.error('auth error')
-            self.render_login()
+            self._display_auth_dialog()
+
+    def _display_auth_dialog(self):
+        def cancel_action():
+            st.session_state.mode = 'demo'
+            st.session_state.selected_mode = 'demo'
+            st.rerun()
+        StravaAuthDialog(self.strava.get_login_url(), cancel_action).render()
