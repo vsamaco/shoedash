@@ -44,15 +44,15 @@ with st.sidebar:
                  index=source_values.index(st.session_state.mode), on_change=update_mode, key='selected_mode')
 
 # ====== GET DATA ======= #
-
+mode = st.session_state.mode
 athlete_id = st.session_state.strava.athlete.get('id')
 data_adapter = StravaDataAdapter(strava
                                  ) if st.session_state.mode == 'strava' else DemoDataAdapter()
-athlete_repository = AthleteRepository(get_athlete(data_adapter,
+athlete_repository = AthleteRepository(get_athlete(data_adapter, mode,
                                                    athlete_id))
 
 activity_repository = ActivityRepository(get_activities(
-    data_adapter, athlete_id))
+    data_adapter, mode, athlete_id))
 
 activity_year_values = activity_repository.get_activity_years()
 available_shoes = athlete_repository.get_shoes_names()
