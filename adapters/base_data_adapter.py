@@ -8,7 +8,7 @@ class BaseDataAdapter(ABC):
         pass
 
     @abstractmethod
-    def get_activities(self, athlete_id):
+    def get_activities(self, athlete_id, per_page, page):
         pass
 
 
@@ -18,5 +18,5 @@ def get_athlete(_adapter: BaseDataAdapter, mode, athlete_id):
 
 
 @st.cache_data
-def get_activities(_adapter: BaseDataAdapter, mode, athlete_id):
-    return _adapter.get_activities(athlete_id)
+def get_activities(_adapter: BaseDataAdapter, mode, athlete_id, page=1, per_page=100):
+    return _adapter.get_activities(athlete_id=athlete_id, page=page, per_page=per_page)
