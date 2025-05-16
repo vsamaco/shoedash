@@ -20,7 +20,17 @@ def test_strava_adapter_get_activities():
         {"id": 100, "name": "Activity 100"}]
 
     adapter = StravaDataAdapter(mock_strava)
-    activities = adapter.get_activities(1)
+    activities = adapter.get_activities(athlete_id=1, page=1, per_page=25)
 
     assert len(activities) == 1
     mock_strava.get_activities.assert_called_once()
+
+
+def test_strava_adapter_get_activities_pages():
+    mock_strava = MagicMock()
+    mock_strava.get_activities.return_value = [
+        {"id": 100, "name": "Activity 100"}]
+
+    adapter = StravaDataAdapter(mock_strava)
+    adapter.get_activities(athlete_id=1, page=2, per_page=25)
+    assert mock_strava.get_activities.call_count == 2

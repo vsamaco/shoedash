@@ -14,7 +14,7 @@ class DemoDataAdapter(BaseDataAdapter):
         response.raise_for_status()
         return response.json()
 
-    def get_activities(self, athlete_id):
+    def get_activities(self, athlete_id, per_page=100, page=1):
         response = requests.get(self.DEMO_ACTIVITY_URL, timeout=self.TIMEOUT)
         response.raise_for_status()
         return response.json()
