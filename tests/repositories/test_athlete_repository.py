@@ -15,34 +15,15 @@ athlete_data = {
 }
 
 
-@patch('repositories.athlete_repository.ShoeProcessor')
-def test_get_profile(_mock_shoe_processor_class):
+def test_get_profile():
     repo = AthleteRepository(athlete_data)
     assert repo.get_profile() == athlete_data
 
 
-@patch('repositories.athlete_repository.ShoeProcessor')
-def test_get_shoes_names(mock_shoe_processor_class):
-    mock_shoe_processor = MagicMock()
-    mock_shoe_processor.get_shoe_name_list.return_value = ['Saucony', 'ASICS']
-    mock_shoe_processor_class.return_value = mock_shoe_processor
-
+def test_get_shoes_df():
     repo = AthleteRepository(athlete_data)
-    result = repo.get_shoes_names()
+    df_shoes = repo.get_shoes_df()
 
-    assert result == ['Saucony', 'ASICS']
-    mock_shoe_processor.get_shoe_name_list.assert_called_once()
-
-
-@patch('repositories.athlete_repository.ShoeProcessor')
-def test_get_shoes_df(mock_shoe_processor_class):
-    mock_shoe_processor = MagicMock()
-    mock_filtered = MagicMock()
-    mock_filtered.get_dataframe.return_value = "mocked"
-    mock_shoe_processor.filter_shoes_by_name.return_value = mock_filtered
-    mock_shoe_processor_class.return_value = mock_shoe_processor
-
-    repo = AthleteRepository(athlete_data)
-    repo.get_shoes_df()
-    mock_shoe_processor.filter_shoes_by_name.assert_called_once()
-    mock_filtered.get_dataframe.assert_called_once()
+    assert len(df_shoes) == 2
+    assert df_shoes['name'].to_list() == ['Saucony Ride 15',
+                                          'ASICS Novablast 4']

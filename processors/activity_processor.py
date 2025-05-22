@@ -1,22 +1,12 @@
+from datetime import timedelta
 import pandas as pd
 import streamlit as st
-METERS_TO_MILES = 0.000621371
 
 
 class ActivityProcessor():
-    def __init__(self, activities_json):
-        self.activities = activities_json
-        self.original_df = self._to_dataframe()
+    def __init__(self, df_activities):
+        self.original_df = df_activities
         self.df = self.original_df.copy()
-
-    def _to_dataframe(self):
-        df = pd.DataFrame(self.activities)
-        df['start_date_local'] = pd.to_datetime(df['start_date_local'])
-
-        df = df[df['sport_type'] == 'Run']
-        df['distance_mi'] = df['distance'] * METERS_TO_MILES
-
-        return df[['id', 'start_date_local', 'name', 'distance_mi', 'gear_id']]
 
     def reset(self):
         self.df = self.original_df
