@@ -6,6 +6,8 @@ from adapters.demo_data_adapter import DemoDataAdapter
 from adapters.strava_data_adapter import StravaDataAdapter
 from lib.strava import Strava
 from lib.strava_auth_manager import StravaAuthManager
+from processors.activity_processor import ActivityProcessor
+from processors.shoe_processor import ShoeProcessor
 from repositories.activity_repository import ActivityRepository
 from repositories.athlete_repository import AthleteRepository
 from ui.ActivityTableComponent import ActivityTableComponent
@@ -56,8 +58,11 @@ athlete_repository = AthleteRepository(get_athlete(data_adapter, mode,
 activity_repository = ActivityRepository(get_activities(
     data_adapter, mode, athlete_id, page))
 
-activity_year_values = activity_repository.get_activity_years()
-available_shoes = athlete_repository.get_shoes_names()
+activity_processor = ActivityProcessor(activity_repository.get_activities_df())
+activity_year_values = activity_processor.get_activities_years()
+
+shoe_processor = ShoeProcessor(athlete_repository.get_shoes_df())
+available_shoes = shoe_processor.get_shoe_name_list()
 
 
 with st.sidebar:
@@ -74,10 +79,11 @@ with st.sidebar:
         options=available_shoes)
 
 
-df_shoes = athlete_repository.get_shoes_df(selected_shoes)
-df_activities = activity_repository.get_activities_df(
-    df_shoes, activity_start_year, activity_end_year)
-df_cumulative_shoe_distance = activity_repository.get_cumulative_shoe_distance_df()
+df_shoes = shoe_processor.filter_shoes_by_name(selected_shoes).get_dataframe()
+df_activities = activity_processor.filter_by_year_range(
+    activity_start_year, activity_end_year).merge_with_shoes(df_shoes).get_dataframe()
+df_cumulative_shoe_distance = activity_processor.get_cumulative_shoe_distance()
+
 athlete = athlete_repository.get_profile()
 
 # ====  BUILD UI ==== #

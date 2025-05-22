@@ -1,17 +1,19 @@
-from processors.ActivityProcessor import ActivityProcessor
+import pandas as pd
+
+METERS_TO_MILES = 0.000621371
 
 
 class ActivityRepository():
-    def __init__(self, activity_json):
-        self.activity_json = activity_json
-        self.activity_processor = ActivityProcessor(activity_json)
+    def __init__(self, activities_json):
+        self.activities_json = activities_json
 
-    def get_activity_years(self):
-        return self.activity_processor.get_activities_years()
+    def get_activities_df(self):
+        df = pd.DataFrame(self.activities_json)
+        df['start_date'] = pd.to_datetime(df['start_date'])
+        df['start_date_local'] = pd.to_datetime(df['start_date_local'])
 
-    def get_activities_df(self, df_shoes, start_year=None, end_year=None):
-        return self.activity_processor.merge_with_shoes(df_shoes).filter_by_year_range(
-            start_year, end_year).get_dataframe()
+        df = df[df['sport_type'] == 'Run']
+        df['distance_mi'] = df['distance'] * METERS_TO_MILES
+        df.sort_values('start_date_local', inplace=True)
 
-    def get_cumulative_shoe_distance_df(self):
-        return self.activity_processor.get_cumulative_shoe_distance()
+        return df[['id', 'start_date', 'start_date_local', 'name', 'distance_mi', 'gear_id']]
