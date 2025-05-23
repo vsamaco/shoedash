@@ -10,9 +10,11 @@ from processors.activity_processor import ActivityProcessor
 from processors.shoe_processor import ShoeProcessor
 from repositories.activity_repository import ActivityRepository
 from repositories.athlete_repository import AthleteRepository
-from ui.ActivityTableComponent import ActivityTableComponent
-from ui.ShoeDistanceChartComponent import ShoeDistanceChartComponent
-from ui.ShoeTableComponent import ShoeTableComponent
+from ui.activity_table_component import ActivityTableComponent
+from ui.shoe_distance_chart_component import ShoeDistanceChartComponent
+from ui.shoe_table_component import ShoeTableComponent
+from ui.overview_stats_component import OverviewStatsComponent
+from ui.weekly_activities_component import WeeklyActivitiesComponent
 
 load_dotenv(override=True)
 
@@ -82,7 +84,6 @@ with st.sidebar:
 df_shoes = shoe_processor.filter_shoes_by_name(selected_shoes).get_dataframe()
 df_activities = activity_processor.filter_by_year_range(
     activity_start_year, activity_end_year).merge_with_shoes(df_shoes).get_dataframe()
-df_cumulative_shoe_distance = activity_processor.get_cumulative_shoe_distance()
 
 athlete = athlete_repository.get_profile()
 
@@ -93,6 +94,12 @@ def main():
     st.title("Shoe Dashboard")
     st.subheader(f"Hello {athlete.get('firstname')}")
 
+    st.subheader("Overview")
+    OverviewStatsComponent(df_activities, df_shoes).render()
+
+    st.subheader('Weekly Mileage')
+    WeeklyActivitiesComponent(df_activities).render()
+
     st.subheader(f'Shoes ({len(df_shoes)})')
     ShoeTableComponent(df_shoes).render()
 
@@ -100,7 +107,7 @@ def main():
     ActivityTableComponent(df_activities).render()
 
     st.subheader("Stats")
-    ShoeDistanceChartComponent(df_cumulative_shoe_distance).render()
+    ShoeDistanceChartComponent(df_activities).render()
 
 
 main()
