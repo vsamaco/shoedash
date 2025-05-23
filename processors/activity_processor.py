@@ -1,6 +1,5 @@
 from datetime import timedelta
 import pandas as pd
-import streamlit as st
 
 
 class ActivityProcessor():
@@ -11,6 +10,20 @@ class ActivityProcessor():
     def reset(self):
         self.df = self.original_df
         return self.df
+
+    def filter_by_week_range(self, weeks_ago):
+        # assign week start to Monday 00:00
+        self.df['week_start'] = self.df['start_date_local'].dt.to_period(
+            'W').apply(lambda r: r.start_time)
+
+        # most recent week
+        end_week = self.df['week_start'].max()
+        start_week = end_week - timedelta(weeks=weeks_ago)
+
+        # filter
+        self.df = self.df[self.df['week_start'] >= start_week].copy()
+
+        return self
 
     def get_dataframe(self):
         return self.df
@@ -36,15 +49,3 @@ class ActivityProcessor():
 
     def get_activities_years(self):
         return sorted(self.df['start_date_local'].dt.year.dropna().unique())
-
-    def get_cumulative_shoe_distance(self):
-        '''Returns dataframe with cumulative distance per shoe over time'''
-        df = self.df.copy()
-        df = df.sort_values(['name_shoe', 'start_date_local'])
-
-        grouped = df.groupby(['name_shoe', 'start_date_local']).agg(
-            {'distance_mi': 'sum'}).reset_index()
-
-        grouped['cumulative_distance'] = grouped.groupby(
-            'name_shoe')['distance_mi'].cumsum()
-        return grouped

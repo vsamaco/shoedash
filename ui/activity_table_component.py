@@ -1,9 +1,12 @@
+import pandas as pd
 import streamlit as st
+
+from processors.activity_processor import ActivityProcessor
 
 
 class ActivityTableComponent():
-    def __init__(self, df_activities):
-        self.df_activities = df_activities
+    def __init__(self, df_activities: pd.DataFrame):
+        self.activity_processor = ActivityProcessor(df_activities)
         self.column_config = {
             'start_date_local': st.column_config.DatetimeColumn('Start Date', format='YYYY-MM-DD'),
             'distance_mi': st.column_config.NumberColumn('Distance (mi)', format='%.2f mi'),
@@ -14,4 +17,5 @@ class ActivityTableComponent():
         }
 
     def render(self):
-        st.dataframe(self.df_activities, column_config=self.column_config)
+        activities = self.activity_processor.get_dataframe()
+        st.dataframe(activities, column_config=self.column_config)
