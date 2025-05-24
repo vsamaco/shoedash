@@ -12,7 +12,6 @@ class ShoeDistanceChartComponent():
     def _get_culumative_shoe_distance(self):
         '''Returns dataframe with cumulative distance per shoe over time'''
         df = self.activity_processor.get_dataframe()
-        st.write(df)
         df = df.sort_values(['name_shoe', 'start_date_local'])
 
         grouped = df.groupby(['name_shoe', 'start_date_local']).agg(
