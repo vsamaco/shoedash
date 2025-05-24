@@ -104,14 +104,12 @@ def main():
     st.subheader(f'Shoes ({len(df_shoes)})')
     ShoeListComponent(df_shoes, df_activities).render()
 
-    st.subheader(f'Shoes ({len(df_shoes)})')
-    ShoeTableComponent(df_shoes).render()
-
-    st.subheader(f'Activities ({len(df_activities)})')
-    ActivityTableComponent(df_activities).render()
-
-    st.subheader("Stats")
-    ShoeDistanceChartComponent(df_activities).render()
+    st.subheader('Data')
+    tab1, tab2 = st.tabs(['Activities', 'Shoes'])
+    with tab1:
+        ActivityTableComponent(df_activities).render()
+    with tab2:
+        ShoeTableComponent(df_shoes, df_activities).render()
 
 
 main()

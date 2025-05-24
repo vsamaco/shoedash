@@ -32,7 +32,7 @@ class ShoeListComponent():
         st.dataframe(shoe_activities[['start_date_local', 'name', 'distance_mi']],
                      height=200,
                      column_config={
-                         'start_date_local': st.column_config.DateColumn('date'),
+                         'start_date_local': st.column_config.DateColumn('date', format='M/DD/YYYY'),
                          'distance_mi': st.column_config.NumberColumn('distance (mi)', format="%.2f mi")
         })
 
