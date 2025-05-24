@@ -12,6 +12,7 @@ from repositories.activity_repository import ActivityRepository
 from repositories.athlete_repository import AthleteRepository
 from ui.activity_table_component import ActivityTableComponent
 from ui.shoe_distance_chart_component import ShoeDistanceChartComponent
+from ui.shoe_list_component import ShoeListComponent
 from ui.shoe_table_component import ShoeTableComponent
 from ui.overview_stats_component import OverviewStatsComponent
 from ui.weekly_activities_component import WeeklyActivitiesComponent
@@ -99,6 +100,9 @@ def main():
 
     st.subheader('Weekly Mileage')
     WeeklyActivitiesComponent(df_activities).render()
+
+    st.subheader(f'Shoes ({len(df_shoes)})')
+    ShoeListComponent(df_shoes, df_activities).render()
 
     st.subheader(f'Shoes ({len(df_shoes)})')
     ShoeTableComponent(df_shoes).render()
