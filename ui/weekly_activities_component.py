@@ -10,10 +10,10 @@ class WeeklyActivitiesComponent():
 
     def render(self):
         weekly_activities = self.activity_processor.filter_by_week_range(
-            3).get_dataframe()
+            7).get_dataframe()
 
         weekly_activities['rolling_avg'] = weekly_activities['distance_mi'].rolling(
-            window=4, min_periods=1).mean()
+            window=8, min_periods=1).mean()
 
         grouped_df = weekly_activities.groupby(
             ['week_start', 'name_shoe'])['distance_mi'].sum().reset_index()
