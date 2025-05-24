@@ -15,16 +15,16 @@ class OverviewStatsComponent():
 
     def _render_num_activities(self, df_activities: pd.DataFrame):
         num_activities = len(df_activities)
-        st.metric(label='Activities:', value=num_activities, border=True)
+        st.metric(label='Activities', value=num_activities, border=True)
 
     def _render_num_shoes(self, df_shoes: pd.DataFrame):
         num_shoes = len(df_shoes)
-        st.metric(label='Shoes:', value=num_shoes, border=True)
+        st.metric(label='Shoes', value=num_shoes, border=True)
 
     def _render_total_shoe_mileage(self, df_activities: pd.DataFrame):
         total_mileage = df_activities['distance_mi'].sum()
 
-        st.metric(label='Total Shoe Mileage',
+        st.metric(label='Total Activity Mileage',
                   value=f"{round(total_mileage)} mi", border=True)
 
     def _render_weekly_mileage(self, df_activities: pd.DataFrame):
@@ -36,10 +36,10 @@ class OverviewStatsComponent():
 
     def _render_dates(self, df_activities: pd.DataFrame):
         start_date = df_activities['start_date_local'].min().strftime(
-            '%m/%d/%Y')
+            '%-m/%d/%Y')
 
         end_date = df_activities['start_date_local'].max().strftime(
-            '%m/%d/%Y')
+            '%-m/%d/%Y')
 
         st.text(f"{start_date} - {end_date}")
 
