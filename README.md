@@ -2,7 +2,7 @@
 
 ## Setup
 
-1. Create .env from example and update environment variables
+1. Create .env from .env.example and update environment variables
 
 2. Install dependencies
 

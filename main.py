@@ -10,6 +10,7 @@ from processors.activity_processor import ActivityProcessor
 from processors.shoe_processor import ShoeProcessor
 from repositories.activity_repository import ActivityRepository
 from repositories.athlete_repository import AthleteRepository
+from services.gear_sync_service import GearSyncService
 from ui.activity_table_component import ActivityTableComponent
 from ui.shoe_distance_chart_component import ShoeDistanceChartComponent
 from ui.shoe_list_component import ShoeListComponent
@@ -33,6 +34,9 @@ if "mode" not in st.session_state:
 if "strava" not in st.session_state:
     st.session_state.strava = Strava(
         CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, scope="profile:read_all,activity:read")
+
+if "check_retired_shoes" not in st.session_state:
+    st.session_state.check_retired_shoes = False
 
 # ======  AUTH ======= #
 
@@ -65,10 +69,20 @@ activity_processor = ActivityProcessor(activity_repository.get_activities_df())
 activity_year_values = activity_processor.get_activities_years()
 
 shoe_processor = ShoeProcessor(athlete_repository.get_shoes_df())
+
+gear_sync_service = GearSyncService(
+    activity_processor, shoe_processor, data_adapter)
+retired_shoes = gear_sync_service.get_retired_shoe_ids()
+if st.session_state.check_retired_shoes:
+    gear_sync_service.sync_retired_shoes()
+
 available_shoes = shoe_processor.get_shoe_name_list()
 
 
 with st.sidebar:
+    if len(retired_shoes):
+        st.checkbox(
+            label=f"Include Retired Shoes: {len(retired_shoes)}", key='check_retired_shoes')
     activity_start_year = st.selectbox(
         'Start Year', activity_year_values, index=0)
     activity_end_year = st.selectbox(
@@ -105,7 +119,8 @@ def main():
     ShoeListComponent(df_shoes, df_activities).render()
 
     st.subheader('Overall Data')
-    tab1, tab2, tab3 = st.tabs(['Activities', 'Shoes', 'All-time Distance'])
+    tab1, tab2, tab3 = st.tabs(
+        ['Activities', 'Shoes', 'Shoe Distance Chart'])
     with tab1:
         ActivityTableComponent(df_activities).render()
     with tab2:

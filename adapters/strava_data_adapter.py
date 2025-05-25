@@ -4,8 +4,13 @@ from lib.strava import Strava
 
 
 class StravaDataAdapter(BaseDataAdapter):
+    MODE = "strava"
+
     def __init__(self, strava: Strava):
         self.strava = strava
+
+    def get_mode(self):
+        return self.MODE
 
     def get_athlete(self, athlete_id):
         return self.strava.get_athlete()
@@ -21,3 +26,6 @@ class StravaDataAdapter(BaseDataAdapter):
             activities.extend(page_activities)
 
         return activities
+
+    def get_gear(self, gear_id):
+        return self.strava.get_gear(gear_id)

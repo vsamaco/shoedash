@@ -11,6 +11,11 @@ class ShoeProcessor():
     def get_shoe_name_list(self):
         return sorted(self.df['name'].unique().tolist())
 
+    def merge_retired_shoes(self, df_shoes):
+        self.df = pd.concat([self.df, df_shoes], ignore_index=True)
+
+        return self
+
     def merge_activities(self, df_activities):
         group_activities = df_activities.groupby(
             'name_shoe', as_index=False)['distance_mi'].sum()

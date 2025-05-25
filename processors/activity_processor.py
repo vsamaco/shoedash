@@ -29,8 +29,8 @@ class ActivityProcessor():
         return self.df
 
     def merge_with_shoes(self, shoes_df):
-        self.df = pd.merge(self.df, shoes_df, on='gear_id',
-                           how='inner', suffixes=('', '_shoe'))
+        self.df = pd.merge(self.df, shoes_df,
+                           how='left', left_on='gear_id', right_on='gear_id', suffixes=('', '_shoe'))
         return self
 
     def filter_by_year_range(self, start_year, end_year):
@@ -47,5 +47,23 @@ class ActivityProcessor():
         self.df = self.df[self.df['gear_id']].isin(shoe_ids)
         return self.df
 
+    def merge_missing_shoes(self, df_shoes):
+        self.df = self.df.merge(
+            df_shoes[['gear_id', 'name']], how='left', on='gear_id')
+
+        return self
+
     def get_activities_years(self):
         return sorted(self.df['start_date_local'].dt.year.dropna().unique())
+
+    def get_missing_gear_ids(self, df_shoes: pd.DataFrame):
+        # Get gear ids from activities
+        activity_gear_ids = self.df["gear_id"].dropna().unique()
+
+        # Get gear ids from shoes
+        shoe_ids = df_shoes["gear_id"].unique()
+
+        # Get gear_ids that are in activities but not in shoes
+        missing_gear_ids = list(set(activity_gear_ids) - set(shoe_ids))
+
+        return missing_gear_ids
