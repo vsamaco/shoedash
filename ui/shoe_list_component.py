@@ -12,6 +12,9 @@ class ShoeListComponent():
 
     def _render_shoe_card(self, shoe: pd.Series, shoe_activities: pd.DataFrame):
         shoe_name = shoe['name']
+
+        if shoe['retired']:
+            shoe_name = f"🪦 {shoe_name}"
         shoe_total_miles = shoe['total_distance_mi']
         num_activities = len(
             shoe_activities) if not shoe_activities.empty else None
@@ -60,12 +63,15 @@ class ShoeListComponent():
         start_date = activities['start_date_local'].min()
         end_date = activities['start_date_local'].max()
 
-        shoe_names = []
+        shoe_map = {}
         for index, shoe in shoes.iterrows():
-            shoe_names.append(shoe['name'])
+            shoe_label = shoe['name']
+            if shoe['retired']:
+                shoe_label = f'🪦 {shoe_label}'
+            shoe_map[shoe['name']] = shoe_label
 
         shoe_selected_pill = st.pills(
-            'Select Shoe', options=shoe_names, default=shoes.loc[0]['name'], label_visibility='hidden')
+            'Select Shoe', options=shoe_map.keys(), format_func=lambda option: shoe_map[option], default=shoes.iloc[0]['name'], label_visibility='hidden')
 
         for index, shoe in shoes.iterrows():
             if shoe_selected_pill != shoe['name']:

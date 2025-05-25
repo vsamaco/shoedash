@@ -10,15 +10,13 @@ class GearSyncService():
         self.shoe_processor = shoe_processor
         self.data_adapter = data_adapter
 
-    def get_retired_shoes(self):
+    def get_retired_shoe_ids(self):
         df_shoes = self.shoe_processor.get_dataframe()
         return self.activity_processor.get_missing_gear_ids(
             df_shoes)
 
     def sync_retired_shoes(self):
-        df_shoes = self.shoe_processor.get_dataframe()
-        missing_gear_ids = self.activity_processor.get_missing_gear_ids(
-            df_shoes)
+        missing_gear_ids = self.get_retired_shoe_ids()
 
         if not missing_gear_ids:
             return

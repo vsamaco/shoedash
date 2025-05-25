@@ -23,5 +23,5 @@ class ShoeTableComponent():
         shoes.index = pd.RangeIndex(start=1, stop=len(shoes) + 1)
 
         shoes = shoes[['name', 'activity_count',
-                       'distance_mi', 'total_distance_mi']]
+                       'distance_mi', 'total_distance_mi', 'retired']]
         st.dataframe(shoes, column_config=self.column_config)
