@@ -19,7 +19,7 @@ class GearSyncService():
         missing_gear_ids = self.get_retired_shoe_ids()
 
         if not missing_gear_ids:
-            return
+            return pd.DataFrame()
 
         missing_shoes = []
         mode = self.data_adapter.get_mode()
@@ -35,4 +35,4 @@ class GearSyncService():
 
         self.shoe_processor.merge_retired_shoes(df_missing_shoes)
 
-        return missing_shoes
+        return df_missing_shoes
