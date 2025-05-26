@@ -37,4 +37,6 @@ class ShoeDistanceChartComponent():
                 tickformat="%m/%d/%y"  # e.g., 5/1/2024
             )
         )
+
+        st.subheader("Shoe Cumulative Distance", divider=True)
         st.plotly_chart(fig)

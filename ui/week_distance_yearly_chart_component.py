@@ -16,6 +16,7 @@ class WeekDistanceYearlyChartComponent():
             x="normalized_week",
             y="distance_mi",
             color='year_start',
+            markers=True,
             labels={
                 'normalized_week': 'Week Date',
                 'distance_mi': 'Distance (mi)',
