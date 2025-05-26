@@ -28,6 +28,20 @@ class ActivityProcessor():
     def get_dataframe(self):
         return self.df
 
+    def get_weekly_distance_per_year(self):
+        df_activities = self.get_dataframe().copy()
+        df_activities['week_start'] = df_activities['start_date_local'].dt.to_period(
+            'W').apply(lambda r: r.start_time)
+        df_activities['year_start'] = df_activities['week_start'].dt.year
+
+        df_activities['normalized_week'] = df_activities['week_start'].apply(
+            lambda d: d.replace(year=2000))
+
+        df_weekly = df_activities.groupby(
+            ['year_start', 'normalized_week'])['distance_mi'].sum().reset_index()
+
+        return df_weekly
+
     def merge_with_shoes(self, shoes_df):
         self.df = pd.merge(self.df, shoes_df,
                            how='left', left_on='gear_id', right_on='gear_id', suffixes=('', '_shoe'))
