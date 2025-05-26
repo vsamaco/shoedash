@@ -17,6 +17,8 @@ from ui.shoe_list_component import ShoeListComponent
 from ui.shoe_table_component import ShoeTableComponent
 from ui.overview_stats_component import OverviewStatsComponent
 from ui.weekly_activities_component import WeeklyActivitiesComponent
+from ui.cumulative_week_distance_yearly_chart_component import CumulativeDistanceYearlyChartComponent
+from ui.week_distance_yearly_chart_component import WeekDistanceYearlyChartComponent
 
 load_dotenv(override=True)
 
@@ -118,15 +120,23 @@ def main():
     st.subheader(f'Shoes ({len(df_shoes)})')
     ShoeListComponent(df_shoes, df_activities).render()
 
+    st.subheader('Charts')
+    ctab1, ctab2, ctab3 = st.tabs(
+        ['Shoe Cumulative Distance', 'Cumulative Week Distance Yearly', 'Week Distance Yearly'])
+    with ctab1:
+        ShoeDistanceChartComponent(df_activities).render()
+    with ctab2:
+        CumulativeDistanceYearlyChartComponent(df_activities).render()
+    with ctab3:
+        WeekDistanceYearlyChartComponent(df_activities).render()
+
     st.subheader('Overall Data')
-    tab1, tab2, tab3 = st.tabs(
-        ['Activities', 'Shoes', 'Shoe Distance Chart'])
+    tab1, tab2 = st.tabs(
+        ['Activities', 'Shoes'])
     with tab1:
         ActivityTableComponent(df_activities).render()
     with tab2:
         ShoeTableComponent(df_shoes, df_activities).render()
-    with tab3:
-        ShoeDistanceChartComponent(df_activities).render()
 
 
 main()
