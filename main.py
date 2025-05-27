@@ -53,8 +53,8 @@ with st.sidebar:
     source_values = ['demo', 'strava']
     st.selectbox('Source', ['demo', 'strava'],
                  index=source_values.index(st.session_state.mode), on_change=update_mode, key='selected_mode')
-    page = st.number_input("Source pages", min_value=1,
-                           max_value=10) if st.session_state.mode == 'strava' else 1
+    page = st.selectbox("Source pages", options=[
+                        1, 5, 10, 20]) if st.session_state.mode == 'strava' else 1
 
 # ====== GET DATA ======= #
 mode = st.session_state.mode
