@@ -31,7 +31,7 @@ class OverviewStatsComponent():
         average_weekly_miles = df_activities.groupby(
             'week_start')['distance_mi'].sum().mean()
         st.metric(label='Weekly Mileage',
-                  value=f" {round(average_weekly_miles)} mi",
+                  value=f"{round(average_weekly_miles)} mi",
                   border=True)
 
     def _render_dates(self, df_activities: pd.DataFrame):
