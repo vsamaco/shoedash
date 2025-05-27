@@ -22,7 +22,10 @@ class CumulativeDistanceYearlyChartComponent():
                 'normalized_week': 'Week Date',
                 'cumulative_distance_mi': 'Distance (mi)',
                 'year_start': 'Year'
-            }
+            },
+            hover_data={
+                'cumulative_distance_mi': ':.2f'
+            },
         )
 
         fig.update_layout(
@@ -30,6 +33,11 @@ class CumulativeDistanceYearlyChartComponent():
             yaxis_title="Cumulative Distance (mi)",
             legend_title="Year",
         )
+        config = {
+            'toImageButtonOptions': {
+                'filename': 'cumulative_week_distance_yearly_chart',
+            }
+        }
 
         st.subheader('Cumulative Week Distance Per Year', divider=True)
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, config=config)

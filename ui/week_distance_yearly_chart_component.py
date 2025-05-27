@@ -21,14 +21,24 @@ class WeekDistanceYearlyChartComponent():
                 'normalized_week': 'Week Date',
                 'distance_mi': 'Distance (mi)',
                 'year_start': 'Year'
-            }
+            },
+            hover_data={
+                'distance_mi': ':.2f'
+            },
         )
 
         fig.update_layout(
             xaxis=dict(
                 tickformat="%b %d",
                 range=[pd.Timestamp("2000-01-01"), pd.Timestamp("2000-12-31")]
-            )
+            ),
         )
+
+        config = {
+            'toImageButtonOptions': {
+                'filename': 'week_distance_yearly_chart',
+            }
+        }
+
         st.subheader('Weekly Distance Per Year', divider=True)
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, config=config)

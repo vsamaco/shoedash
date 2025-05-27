@@ -22,9 +22,26 @@ class WeeklyActivitiesComponent():
                             height=300,
                             x='week_start',
                             y='distance_mi',
+                            hover_data={
+                                'distance_mi': ':.2f'
+                            },
                             color='name_shoe',
-                            labels={'week_start': '', 'distance_mi': ""})
-        weekly_fig.update_layout(showlegend=False)
+                            labels={'week_start': '', 'distance_mi': "", 'name_shoe': 'Shoe'})
+
+        weekly_fig.update_layout(
+            legend=dict(
+                orientation='h',
+                yanchor='bottom',
+                y=-0.8,
+                xanchor='center',
+                x=0.5,
+            )
+        )
+        config = {
+            'toImageButtonOptions': {
+                'filename': 'weekly_activities_shoes_stacked_chart',
+            }
+        }
 
         with st.container(border=True):
-            st.plotly_chart(weekly_fig)
+            st.plotly_chart(weekly_fig, config=config)
