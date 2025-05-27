@@ -13,8 +13,9 @@ class ActivityProcessor():
 
     def filter_by_week_range(self, weeks_ago):
         # assign week start to Monday 00:00
-        self.df['week_start'] = self.df['start_date_local'].dt.to_period(
-            'W').apply(lambda r: r.start_time)
+        self.df['week_start'] = self.df['start_date_local'] - \
+            pd.to_timedelta(self.df['start_date_local'].dt.weekday, unit='D')
+        self.df['week_start'] = self.df['week_start'].dt.normalize()
 
         # most recent week
         end_week = self.df['week_start'].max()
@@ -30,8 +31,10 @@ class ActivityProcessor():
 
     def get_weekly_distance_per_year(self):
         df_activities = self.get_dataframe().copy()
-        df_activities['week_start'] = df_activities['start_date_local'].dt.to_period(
-            'W').apply(lambda r: r.start_time)
+        df_activities['week_start'] = df_activities['start_date_local'] - \
+            pd.to_timedelta(
+                df_activities['start_date_local'].dt.weekday, unit='D')
+        df_activities['week_start'] = df_activities['week_start'].dt.normalize()
         df_activities['year_start'] = df_activities['week_start'].dt.year
 
         df_activities['normalized_week'] = df_activities['week_start'].apply(
