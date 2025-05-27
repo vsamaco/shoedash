@@ -30,7 +30,10 @@ class ShoeDistanceChartComponent():
             color="name_shoe",
             markers=True,
             labels={'start_date_local': 'Date', 'name_shoe': 'Shoe',
-                    'cumulative_distance': 'Distance (mi)'}
+                    'cumulative_distance': 'Distance (mi)'},
+            hover_data={
+                'cumulative_distance': ':.2f'
+            },
         )
         fig.update_layout(
             xaxis=dict(
@@ -38,5 +41,11 @@ class ShoeDistanceChartComponent():
             )
         )
 
+        config = {
+            'toImageButtonOptions': {
+                'filename': 'shoe_cumulative_distance_chart',
+            }
+        }
+
         st.subheader("Shoe Cumulative Distance", divider=True)
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, config=config)

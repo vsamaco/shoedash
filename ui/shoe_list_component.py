@@ -39,7 +39,7 @@ class ShoeListComponent():
                          'distance_mi': st.column_config.NumberColumn('distance (mi)', format="%.2f mi")
         })
 
-    def _render_shoe_activity_chart(self, shoe_activities: pd.DataFrame, start_date, end_date, num_activities):
+    def _render_shoe_activity_chart(self, shoe, shoe_activities: pd.DataFrame, start_date, end_date, num_activities):
         fig = go.Figure()
         fig.add_trace(go.Bar(
             x=shoe_activities['start_date_local'],
@@ -55,7 +55,13 @@ class ShoeListComponent():
             bargap=0.2,
         )
 
-        st.plotly_chart(fig)
+        config = {
+            'toImageButtonOptions': {
+                'filename': f"{shoe['name'].replace(' ', '_')}_shoe_distance_chart",
+            }
+        }
+
+        st.plotly_chart(fig, config=config)
 
     def render(self):
         shoes = self.shoe_processor.get_dataframe()
@@ -85,10 +91,9 @@ class ShoeListComponent():
                 tab1, tab2 = st.tabs(['Activities', 'Chart'])
                 with tab1:
                     if not shoe_activities.empty:
-                        self._render_shoe_activities(
-                            shoe_activities)
+                        self._render_shoe_activities(shoe_activities)
 
                 with tab2:
                     if not shoe_activities.empty:
                         self._render_shoe_activity_chart(
-                            shoe_activities, start_date, end_date, len(activities))
+                            shoe, shoe_activities, start_date, end_date, len(activities))
