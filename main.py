@@ -86,16 +86,17 @@ with st.sidebar:
         st.checkbox(
             label=f"Include Retired Shoes: {len(retired_shoes)}", key='check_retired_shoes')
     activity_start_year = st.selectbox(
-        'Start Year', activity_year_values, index=0)
+        'Start Year', activity_year_values, index=0, key="activity_start_year")
     activity_end_year = st.selectbox(
         'End Year',
         activity_year_values,
         index=len(activity_year_values) - 1,
+        key="activity_end_year",
     )
 
     selected_shoes = st.multiselect(
         "Select Shoes",
-        options=available_shoes)
+        options=available_shoes, key="selected_shoes")
 
 
 df_shoes = shoe_processor.filter_shoes_by_name(selected_shoes).get_dataframe()
