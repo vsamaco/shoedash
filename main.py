@@ -12,6 +12,7 @@ from repositories.activity_repository import ActivityRepository
 from repositories.athlete_repository import AthleteRepository
 from services.gear_sync_service import GearSyncService
 from ui.activity_table_component import ActivityTableComponent
+from ui.month_distance_yearly_chart_component import MonthDistanceYearlyChartComponent
 from ui.shoe_distance_chart_component import ShoeDistanceChartComponent
 from ui.shoe_list_component import ShoeListComponent
 from ui.shoe_table_component import ShoeTableComponent
@@ -122,14 +123,16 @@ def main():
     ShoeListComponent(df_shoes, df_activities).render()
 
     st.subheader('Charts')
-    ctab1, ctab2, ctab3 = st.tabs(
-        ['Shoe Cumulative Distance', 'Cumulative Week Distance Yearly', 'Week Distance Yearly'])
+    ctab1, ctab2, ctab3, ctab4 = st.tabs(
+        ['Shoe Cumulative Distance', 'Cumulative Week Distance Yearly', 'Week Distance Yearly', 'Month Distance Yearly'])
     with ctab1:
         ShoeDistanceChartComponent(df_activities).render()
     with ctab2:
         CumulativeDistanceYearlyChartComponent(df_activities).render()
     with ctab3:
         WeekDistanceYearlyChartComponent(df_activities).render()
+    with ctab4:
+        MonthDistanceYearlyChartComponent(df_activities).render()
 
     st.subheader('Overall Data')
     tab1, tab2 = st.tabs(

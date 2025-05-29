@@ -45,6 +45,18 @@ class ActivityProcessor():
 
         return df_weekly
 
+    def get_monthly_distance_per_year(self):
+        df_activities = self.get_dataframe().copy()
+        df_activities['month_start'] = df_activities['start_date_local'].dt.month
+        df_activities['year_start'] = df_activities['start_date_local'].dt.year
+
+        df_monthly = df_activities.groupby(
+            ['year_start', 'month_start'], sort=False)['distance_mi'].sum().reset_index()
+        df_monthly['month_name'] = df_monthly['month_start'].apply(
+            lambda m: pd.to_datetime(f'2025-{m}-01').strftime('%b'))
+
+        return df_monthly
+
     def merge_with_shoes(self, shoes_df):
         self.df = pd.merge(self.df, shoes_df,
                            how='left', left_on='gear_id', right_on='gear_id', suffixes=('', '_shoe'))
