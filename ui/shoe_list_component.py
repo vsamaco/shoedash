@@ -74,13 +74,13 @@ class ShoeListComponent():
             shoe_label = shoe['name']
             if shoe['retired']:
                 shoe_label = f'🪦 {shoe_label}'
-            shoe_map[shoe['name']] = shoe_label
+            shoe_map[index] = shoe_label
 
         shoe_selected_pill = st.pills(
-            'Select Shoe', options=shoe_map.keys(), format_func=lambda option: shoe_map[option], default=shoes.iloc[0]['name'], label_visibility='hidden')
+            'Select Shoe', options=shoe_map.keys(), format_func=lambda option: shoe_map[int(option)], default=0 if len(shoe_map) else None, label_visibility='hidden')
 
         for index, shoe in shoes.iterrows():
-            if shoe_selected_pill != shoe['name']:
+            if shoe_selected_pill != index:
                 continue
             shoe_activities = activities[activities['name_shoe']
                                          == shoe['name']].reset_index()
