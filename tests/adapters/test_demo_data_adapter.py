@@ -37,8 +37,8 @@ def test_demo_adapter_get_activities(mock_get):
 @patch('adapters.demo_data_adapter.requests.get')
 def test_demo_adapter_get_gear(mock_get):
     mock_response = MagicMock()
-    mock_response.json.return_value = {
-        "id": "g1", "name": "ASICS Novablast 3", "retired": True}
+    mock_response.json.return_value = [{
+        "id": "g1", "name": "ASICS Novablast 3", "retired": True}]
     mock_response.status_code = 200
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
