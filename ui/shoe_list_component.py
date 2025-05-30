@@ -77,7 +77,7 @@ class ShoeListComponent():
             shoe_map[index] = shoe_label
 
         shoe_selected_pill = st.pills(
-            'Select Shoe', options=shoe_map.keys(), format_func=lambda option: shoe_map[int(option)], default=0 if len(shoe_map) else None, label_visibility='hidden')
+            'Select Shoe', options=shoe_map.keys(), format_func=lambda option: shoe_map[int(option)], default=list(shoe_map.keys())[0] if len(shoe_map) else None, label_visibility='hidden')
 
         for index, shoe in shoes.iterrows():
             if shoe_selected_pill != index:
