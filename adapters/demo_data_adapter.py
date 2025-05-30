@@ -27,4 +27,9 @@ class DemoDataAdapter(BaseDataAdapter):
     def get_gear(self, gear_id):
         response = requests.get(self.DEMO_GEAR_URL, timeout=self.TIMEOUT)
         response.raise_for_status()
-        return response.json()
+
+        all_gear = response.json()
+        for gear in all_gear:
+            if gear['id'] == gear_id:
+                return gear
+        return None
