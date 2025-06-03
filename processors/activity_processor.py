@@ -57,6 +57,25 @@ class ActivityProcessor():
 
         return df_monthly
 
+    def get_distance_cohort(self, gear_id=None):
+        df_activities = self.get_dataframe().copy()
+        if gear_id:
+            df_activities = df_activities[df_activities.gear_id == gear_id]
+
+        bins = list(range(0, 31)) + [float('inf')]
+        labels = [f"{i}" for i in range(1, 31)] + ["30+"]
+
+        df_activities['distance_cohort'] = pd.cut(
+            df_activities['distance_mi'],
+            bins=bins,
+            labels=labels,
+            right=False
+        )
+        cohort_counts = df_activities['distance_cohort'].value_counts(
+        ).sort_index().reset_index()
+        cohort_counts.columns = ['Distance (mi)', 'Activity Count']
+        return cohort_counts
+
     def merge_with_shoes(self, shoes_df):
         self.df = pd.merge(self.df, shoes_df,
                            how='left', left_on='gear_id', right_on='gear_id', suffixes=('', '_shoe'))
