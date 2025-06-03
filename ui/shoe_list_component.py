@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import plotly.express as px
 from processors.activity_processor import ActivityProcessor
 from processors.shoe_processor import ShoeProcessor
 
@@ -63,6 +64,33 @@ class ShoeListComponent():
 
         st.plotly_chart(fig, config=config)
 
+    def _render_distance_cohort_chart(self, gear_id):
+        cohort_counts = self.activity_processor.get_distance_cohort(
+            gear_id=gear_id)
+        fig = px.bar(
+            cohort_counts,
+            x='Distance (mi)',
+            y='Activity Count',
+            labels={
+                'Activity Count': "Number of Activities",
+            },
+            height=300,
+        )
+
+        fig.update_layout(
+            xaxis_title="Distance (mi)",
+            yaxis_title="Number of Activities",
+            bargap=0.1,
+        )
+
+        config = {
+            'toImageButtonOptions': {
+                'filename': 'shoe_activity_distance_cohort',
+            }
+        }
+
+        st.plotly_chart(fig, config=config)
+
     def render(self):
         shoes = self.shoe_processor.get_dataframe()
         activities = self.activity_processor.get_dataframe()
@@ -88,7 +116,8 @@ class ShoeListComponent():
 
             with st.container(border=True):
                 self._render_shoe_card(shoe, shoe_activities)
-                tab1, tab2 = st.tabs(['Activities', 'Chart'])
+                tab1, tab2, tab3 = st.tabs(
+                    ['Activities', 'Activity Chart', 'Distance Cohorts'])
                 with tab1:
                     if not shoe_activities.empty:
                         self._render_shoe_activities(shoe_activities)
@@ -97,3 +126,6 @@ class ShoeListComponent():
                     if not shoe_activities.empty:
                         self._render_shoe_activity_chart(
                             shoe, shoe_activities, start_date, end_date, len(activities))
+                with tab3:
+                    if not shoe_activities.empty:
+                        self._render_distance_cohort_chart(shoe['gear_id'])
