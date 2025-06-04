@@ -6,7 +6,7 @@ class StravaAuthDialog():
         self.login_url = login_url
         self.cancel_action = cancel_action
 
-    @st.dialog("Link with Strava?", width='small')
+    @st.dialog("Change Source", width='small')
     def render(self):
         st.markdown("""
             <style>
@@ -21,8 +21,8 @@ class StravaAuthDialog():
             """, unsafe_allow_html=True)
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.link_button(
-                'Login Strava', url=self.login_url, type='primary')
+            st.markdown(
+                f"[![Connect with Strava](app/static/images/btn_strava_connect_with_orange.png)]({self.login_url})")
         with col2:
             if st.button('Cancel'):
                 self.cancel_action()
