@@ -116,7 +116,7 @@ def test_strava_login():
         at = AppTest.from_file('main.py')
         at.session_state.mode = 'strava'
         at.run()
-        assert at.get('link_button')[0].label == "Login Strava"
+        assert "Connect with Strava" in at.get('markdown')[1].value
         assert at.button[0].label == "Cancel"
 
 

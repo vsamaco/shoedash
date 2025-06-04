@@ -145,5 +145,20 @@ def main():
     with tab2:
         ShoeTableComponent(df_shoes, df_activities).render()
 
+    st.markdown(
+        f'''
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p><a href="https://www.strava.com/athletes/{athlete_id if athlete_id is not None else 45458214}" target="_blank" style="color:#FC5200;text-weight:bold;">View Data on Strava</a><br />
+                ShoeDash by <a href="https://www.strava.com/athletes/45458214" target="_blank">Vincent</a></p>
+            </div>
+            <div style="text-align:right;margin-top: 20px;">
+                <a href="https://www.strava.com" target="_blank">
+                    <img src="app/static/images/api_logo_pwrdBy_strava_stack_white.png" alt="Powered by Strava"/>
+                </a>
+            </div>
+        ''',
+        unsafe_allow_html=True)
+
 
 main()
